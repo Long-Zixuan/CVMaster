@@ -61,6 +61,8 @@ def virtual_kb_input():
     global is_copying
     is_copying = True
     for char in text:
+        if keyboard.is_pressed('F2'):
+            break
         if pta_mode:
             if char == '/t':
                 print("t")
@@ -79,8 +81,8 @@ def virtual_kb_input():
 
 def main():
     pygame.init()
-    print("LoongLy Paste Master Beta3.1")
-    print("Mode1:瞬间粘贴\nMode2:模仿人手输入(0.5-2秒输入一个字)\nMode3:每隔0.05秒输入一个字\nPTA Mode:针对类C在PTA平台的粘贴")
+    print("LoongLy Paste Master Beta3.2")
+    print("Mode1:瞬间粘贴\nMode2:模仿人手输入(0.5-2秒输入一个字)\nMode3:每隔0.05秒输入一个字\nPTA Mode:针对类C在PTA平台的粘贴 \nF2是粘贴快捷键，也可以停止粘贴")
     FPS = 30
     DISPLAY_SURFACE = pygame.display.set_mode((520, 150))
     pygame.display.set_caption("Loongly(Lagging Warrior) Copy Master", "Loongly(Lagging Warrior) Copy Master")
@@ -96,32 +98,57 @@ def main():
     # init Img
     img = pygame.image.load("_internal/Img/MSG.png")
     # init Text
-    text_copying = Text(0, 0, "Copying", 32)
-    text_copy_completed = Text(0, 0, "Copy completed", 32)
-    software_MSG = Text(730, 0, "Version:Beta3.1", 10)
+    text_copying = Text(350, 80, "Copying", 32)
+    text_copy_completed = Text(200, 110, "Copy completed", 30)
+    software_MSG = Text(0, 0, "Version:Beta3.2", 10)
 
     global need_delay
     global copy_as_cs
     global pta_mode
     while True:
+        if keyboard.is_pressed('F2'):
+            virtual_kb_input()
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.MOUSEMOTION:
+                if button_movement_cv.rect.collidepoint(event.pos) and not is_copying:
+                    button_movement_cv.color = (100, 100, 100)
+                if not button_movement_cv.rect.collidepoint(event.pos) and not is_copying:
+                    button_movement_cv.color = (76, 90, 88)
+
+                if  button_cv_as_human.rect.collidepoint(event.pos) and not is_copying:
+                    button_cv_as_human.color = (100, 100, 100)
+                if not button_cv_as_human.rect.collidepoint(event.pos) and not is_copying:
+                    button_cv_as_human.color = (76, 90, 88)
+
+                if button_cv_as_cs.rect.collidepoint(event.pos) and not is_copying:
+                    button_cv_as_cs.color = (100, 100, 100)
+                if not button_cv_as_cs.rect.collidepoint(event.pos) and not is_copying:
+                    button_cv_as_cs.color = (76, 90, 88)
+
+                if button_pta_mode_cv.rect.collidepoint(event.pos) and not is_copying:
+                    button_pta_mode_cv.color = (100, 100, 100)
+                if not button_pta_mode_cv.rect.collidepoint(event.pos) and not is_copying:
+                    button_pta_mode_cv.color = (76, 90, 88)
+
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if button_movement_cv.rect.collidepoint(event.pos):
+                if button_movement_cv.rect.collidepoint(event.pos) and not is_copying:
                     need_delay = False
                     copy_as_cs = False
                     virtual_kb_input()
-                if button_cv_as_human.rect.collidepoint(event.pos):
+                if button_cv_as_human.rect.collidepoint(event.pos) and not is_copying:
                     need_delay = True
                     copy_as_cs = False
                     virtual_kb_input()
-                if button_cv_as_cs.rect.collidepoint(event.pos):
+                if button_cv_as_cs.rect.collidepoint(event.pos) and not is_copying:
                     need_delay = False
                     copy_as_cs = True
                     virtual_kb_input()
-                if button_pta_mode_cv.rect.collidepoint(event.pos):
+                if button_pta_mode_cv.rect.collidepoint(event.pos) and not is_copying:
                     pta_mode = not pta_mode
                     #print(pta_mode.__str__())
                     if pta_mode:
@@ -137,9 +164,9 @@ def main():
         button_pta_mode_cv.draw(DISPLAY_SURFACE)
         software_MSG.draw(DISPLAY_SURFACE)
         # DISPLAY_SURFACE.blit(text, (0, 0))
-        if is_copying:
-            text_copying.draw(DISPLAY_SURFACE)
+
         if copy_completed:
+            #print("copy completed")
             text_copy_completed.draw(DISPLAY_SURFACE)
         pygame.display.update()
         time.sleep(1 / FPS)
